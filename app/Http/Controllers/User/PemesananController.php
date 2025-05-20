@@ -5,6 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Pemesanan;
 use App\Models\Pembayaran;
+use App\Models\Jadwal;
+use App\Models\Kursi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +46,6 @@ class PemesananController extends Controller
         // Filter berdasarkan status pembayaran
         if ($status) {
             $query->whereHas('pembayaran', function ($q) use ($status) {
-                // Jika status 'selesai' di UI, mapping ke 'paid' di db
                 if ($status === 'selesai') {
                     $q->where('status', 'paid');
                 } else {
@@ -59,7 +60,34 @@ class PemesananController extends Controller
     }
 
     /**
-     * Simpan pemesanan baru sekaligus upload bukti pembayaran dan arahkan ke halaman daftar pemesanan.
+     * Tampilkan halaman pilih kursi berdasarkan jadwal.
+     */
+    public function show($jadwal_id)
+    {
+        $jadwal = Jadwal::with(['film', 'studio'])->findOrFail($jadwal_id);
+        $kursis = Kursi::all();
+
+        // Ambil kursi yang sudah dibayar
+        $kursiTerpakai = DB::table('kursi_pemesanan')
+            ->join('pemesanans', 'kursi_pemesanan.pemesanan_id', '=', 'pemesanans.id')
+            ->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')
+            ->where('pemesanans.jadwal_id', $jadwal_id)
+            ->where('pembayarans.status', 'paid')
+            ->pluck('kursi_pemesanan.kursi_id')
+            ->toArray();
+
+        foreach ($kursis as $kursi) {
+            $kursi->sudah_dipesan = in_array($kursi->id, $kursiTerpakai);
+        }
+
+        return view('user.pemesanan.pilih_kursi', [
+            'jadwal' => $jadwal,
+            'kursis' => $kursis,
+        ]);
+    }
+
+    /**
+     * Simpan pemesanan dan bukti pembayaran.
      */
     public function store(Request $request)
     {
@@ -68,13 +96,13 @@ class PemesananController extends Controller
             'kursi_ids'         => 'required|array|min:1',
             'kursi_ids.*'       => 'exists:kursis,id',
             'total_harga'       => 'required|numeric|min:0',
-            'bukti_pembayaran'  => 'required|image|max:2048', // wajib upload bukti pembayaran
+            'bukti_pembayaran'  => 'required|image|max:2048',
         ]);
 
         $userId = Auth::id();
         $kursiTerpilih = $request->kursi_ids;
 
-        // Cek apakah kursi sudah dipesan dan dibayar orang lain
+        // Cek apakah kursi sudah dibayar
         $kursiSudahDipesan = DB::table('kursi_pemesanan')
             ->whereIn('kursi_id', $kursiTerpilih)
             ->whereIn('pemesanan_id', function ($q) use ($request) {
@@ -105,14 +133,13 @@ class PemesananController extends Controller
 
             $pemesanan->kursi()->attach($kursiTerpilih);
 
-            // Upload file bukti pembayaran
+            // Upload bukti pembayaran
             $path = Storage::disk('public')->putFile('bukti', $request->file('bukti_pembayaran'));
 
-            // Simpan data pembayaran dengan status 'waiting'
             Pembayaran::create([
                 'pemesanan_id'     => $pemesanan->id,
                 'bukti_pembayaran' => $path,
-                'status'           => 'waiting', // status awal
+                'status'           => 'waiting',
             ]);
 
             DB::commit();

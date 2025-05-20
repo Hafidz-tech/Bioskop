@@ -15,7 +15,13 @@
                 <span class="fw-semibold">Rp {{ number_format($jadwal->film->harga,2,',','.') }}</span>
             </div>
 
-            @if ($errors->any())
+            @if ($errors->has('kursi_sudah_dipesan'))
+            <div class="alert alert-danger">
+                Beberapa kursi sudah dibayar oleh orang lain. Silakan pilih kursi lain.
+            </div>
+            @endif
+
+            @if ($errors->any() && !$errors->has('kursi_sudah_dipesan'))
             <div class="alert alert-danger">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $e)
@@ -55,7 +61,7 @@
                                            autocomplete="off"
                                            {{ $kursi->sudah_dipesan ? 'disabled' : '' }}>
                                     <label for="k{{ $kursi->id }}"
-                                           class="btn btn-sm {{ $kursi->sudah_dipesan ? 'btn-secondary disabled' : 'btn-outline-primary' }}"
+                                           class="btn btn-sm {{ $kursi->sudah_dipesan ? 'btn-light text-primary border border-primary disabled' : 'btn-outline-primary' }}"
                                            style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:8px">
                                         {{ $kursi->nomor_kursi }}
                                     </label>
@@ -67,7 +73,26 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between">
+                {{-- Legenda Kursi --}}
+                <div class="mt-3 px-3">
+                    <div class="d-flex justify-content-center flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                            <span class="btn btn-sm btn-outline-primary p-0" style="width: 28px; height: 28px; border-radius: 6px;"></span>
+                            <span>Tersedia</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                            <span class="btn btn-sm btn-light text-primary border border-primary p-0" 
+                                  style="width: 28px; height: 28px; opacity: 0.7; border-radius: 6px;"></span>
+                            <span>Sudah Dipesan</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                            <span class="btn btn-sm btn-primary p-0" style="width: 28px; height: 28px; border-radius: 6px;"></span>
+                            <span>Dipilih</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('user.jadwal.index') }}"
                        class="btn btn-outline-secondary rounded-3 px-4">&larr; Kembali</a>
                     <button type="button" id="btn-pesan" class="btn btn-primary rounded-3 px-4">
@@ -75,7 +100,7 @@
                     </button>
                 </div>
 
-                <!-- Modal Pembayaran (DIPINDAH KE DALAM FORM) -->
+                <!-- Modal Pembayaran -->
                 <div class="modal fade" id="modalBayar" tabindex="-1" aria-labelledby="modalBayarLabel" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content rounded-4">
@@ -119,6 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const buktiInput = document.getElementById('buktiPembayaran');
   const buktiError = document.getElementById('buktiError');
   const submitFinal = document.getElementById('btn-submit-final');
+
+  // Toggle warna label saat kursi dicentang
+  document.querySelectorAll('input.btn-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const label = document.querySelector(`label[for="${cb.id}"]`);
+      if (cb.checked) {
+        label.classList.remove('btn-outline-primary');
+        label.classList.add('btn-primary');
+      } else {
+        label.classList.add('btn-outline-primary');
+        label.classList.remove('btn-primary');
+      }
+    });
+  });
 
   btn.addEventListener('click', () => {
     const checked = Array.from(document.querySelectorAll('input.btn-check'))
