@@ -33,12 +33,12 @@ class JadwalController extends Controller
             foreach ($jadwalList as $jadwal) {
                 $totalKursi = $jadwal->studio->kapasitas;
 
-                // Hitung kursi yang sudah dipesan dengan status pembayaran confirmed
+                // Hitung kursi yang sudah dipesan dengan status pembayaran paid
                 $kursiTerpakai = DB::table('kursi_pemesanan')
                     ->join('pemesanans as p', 'kursi_pemesanan.pemesanan_id', '=', 'p.id')
                     ->join('pembayarans as pay', 'p.id', '=', 'pay.pemesanan_id')
                     ->where('p.jadwal_id', $jadwal->id)
-                    ->where('pay.status', 'confirmed')
+                    ->where('pay.status', 'paid')
                     ->count();
 
                 $jadwal->sisa_kursi = $totalKursi - $kursiTerpakai;
@@ -52,10 +52,12 @@ class JadwalController extends Controller
     {
         $jadwal = Jadwal::with(['film', 'studio'])->findOrFail($id);
 
-        // Ambil kursi yang sudah dipesan untuk jadwal ini (baik pending maupun confirmed)
+        // Ambil kursi yang sudah dipesan untuk jadwal ini dengan status pembayaran paid
         $kursiTerpesanIds = DB::table('kursi_pemesanan')
             ->join('pemesanans as p', 'kursi_pemesanan.pemesanan_id', '=', 'p.id')
+            ->join('pembayarans as pay', 'p.id', '=', 'pay.pemesanan_id')
             ->where('p.jadwal_id', $id)
+            ->where('pay.status', 'paid')  // hanya confirmed saja yang disable
             ->pluck('kursi_pemesanan.kursi_id')
             ->toArray();
 
@@ -74,3 +76,4 @@ class JadwalController extends Controller
         return view('user.jadwal.show', compact('jadwal', 'kursis'));
     }
 }
+// Compare this snippet from app/Models/Jadwal.php:
