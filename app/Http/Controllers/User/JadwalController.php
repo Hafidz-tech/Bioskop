@@ -52,13 +52,11 @@ class JadwalController extends Controller
     {
         $jadwal = Jadwal::with(['film', 'studio'])->findOrFail($id);
 
-        // Ambil kursi yang sudah dipesan untuk jadwal ini dengan status pembayaran confirmed
+        // Ambil kursi yang sudah dipesan untuk jadwal ini (baik pending maupun confirmed)
         $kursiTerpesanIds = DB::table('kursi_pemesanan')
             ->join('pemesanans as p', 'kursi_pemesanan.pemesanan_id', '=', 'p.id')
-            ->join('pembayarans as pay', 'p.id', '=', 'pay.pemesanan_id')
             ->where('p.jadwal_id', $id)
-            ->where('pay.status', 'confirmed')
-            ->pluck('kursi_pemesanan.kursi_id') // Gunakan alias tabel agar aman
+            ->pluck('kursi_pemesanan.kursi_id')
             ->toArray();
 
         // Ambil seluruh kursi di studio tersebut lalu tandai yang sudah dipesan

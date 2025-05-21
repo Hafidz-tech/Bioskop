@@ -61,7 +61,7 @@
                                            autocomplete="off"
                                            {{ $kursi->sudah_dipesan ? 'disabled' : '' }}>
                                     <label for="k{{ $kursi->id }}"
-                                           class="btn btn-sm {{ $kursi->sudah_dipesan ? 'btn-light text-primary border border-primary disabled' : 'btn-outline-primary' }}"
+                                           class="btn btn-sm {{ $kursi->sudah_dipesan ? 'btn-primary disabled' : 'btn-outline-primary' }}"
                                            style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:8px">
                                         {{ $kursi->nomor_kursi }}
                                     </label>
@@ -81,7 +81,7 @@
                             <span>Tersedia</span>
                         </div>
                         <div class="d-flex align-items-center gap-2" style="font-size: 0.85rem;">
-                            <span class="btn btn-sm btn-light text-primary border border-primary p-0" 
+                            <span class="btn btn-sm btn-primary disabled p-0" 
                                   style="width: 28px; height: 28px; opacity: 0.7; border-radius: 6px;"></span>
                             <span>Sudah Dipesan</span>
                         </div>

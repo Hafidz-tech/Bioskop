@@ -65,9 +65,11 @@ class PemesananController extends Controller
     public function show($jadwal_id)
     {
         $jadwal = Jadwal::with(['film', 'studio'])->findOrFail($jadwal_id);
-        $kursis = Kursi::all();
 
-        // Ambil kursi yang sudah dibayar
+        // Ambil semua kursi untuk studio sesuai jadwal
+        $kursis = Kursi::where('studio_id', $jadwal->studio_id)->get();
+
+        // Ambil kursi yang sudah dibayar (terpakai)
         $kursiTerpakai = DB::table('kursi_pemesanan')
             ->join('pemesanans', 'kursi_pemesanan.pemesanan_id', '=', 'pemesanans.id')
             ->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')
@@ -76,6 +78,7 @@ class PemesananController extends Controller
             ->pluck('kursi_pemesanan.kursi_id')
             ->toArray();
 
+        // Tandai kursi yang sudah dipesan
         foreach ($kursis as $kursi) {
             $kursi->sudah_dipesan = in_array($kursi->id, $kursiTerpakai);
         }
