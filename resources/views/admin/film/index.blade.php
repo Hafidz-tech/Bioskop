@@ -80,7 +80,6 @@
                                             @method('DELETE')
                                             <button type="button" class="btn btn-danger btn-sm btn-delete" data-title="{{ $film->judul }}">Hapus</button>
                                         </form>
-
                                         <!-- Modal Edit -->
                                         <div class="modal fade" id="modalEditFilm{{ $film->id }}" tabindex="-1" aria-labelledby="modalEditFilmLabel{{ $film->id }}" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">
@@ -279,4 +278,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<style>
+.modal-body {
+    text-align: left !important;
+}
+</style>
+
 @endsection
