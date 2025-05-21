@@ -144,13 +144,6 @@
                     <label for="nomor_kursi" class="form-label">Nomor Kursi</label>
                     <input type="text" name="nomor_kursi" id="nomor_kursi" class="form-control" value="{{ old('nomor_kursi') }}" required>
                 </div>
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status Kursi</label>
-                    <select name="status" id="status" class="form-control" required>
-                        <option value="available">Tersedia</option>
-                        <option value="booked">Terpesan</option>
-                    </select>
-                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>

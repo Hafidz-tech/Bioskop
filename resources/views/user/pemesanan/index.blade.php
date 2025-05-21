@@ -125,7 +125,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 {{-- Pagination --}}
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     {{ $pemesanans->withQueryString()->onEachSide(1)->links('pagination::bootstrap-5') }}
