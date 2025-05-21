@@ -133,6 +133,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const harga = {{ $harga }};
@@ -165,7 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(i => +i.dataset.id);
 
     if (!checked.length) {
-      return alert('Pilih minimal 1 kursi.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: 'Pilih minimal 1 kursi.',
+        confirmButtonColor: '#0d6efd'
+      });
+      return;
     }
 
     const total = checked.length * harga;
@@ -200,5 +210,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
-
 @endsection
