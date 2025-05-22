@@ -154,7 +154,10 @@
 </div>
 @endforeach
 
+{{-- SweetAlert dan Konfirmasi Hapus --}}
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+
     // Tampilkan SweetAlert untuk success
     @if(session('success'))
         Swal.fire({
@@ -167,11 +170,11 @@
         });
     @endif
 
-    // Tampilkan SweetAlert untuk error
+    // Tampilkan SweetAlert untuk error khusus jika ada kursi tertaut
     @if(session('error'))
         Swal.fire({
             icon: 'error',
-            title: 'Error',
+            title: '{{ session('error') === "Data gagal dihapus karena masih ada kursi yang tertaut" ? "Gagal Hapus" : "Error" }}',
             text: '{{ session('error') }}',
             timer: 3000,
             timerProgressBar: true,
@@ -201,5 +204,8 @@
             });
         });
     });
+
+});
 </script>
+
 @endsection

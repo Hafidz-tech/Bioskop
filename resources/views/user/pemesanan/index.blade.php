@@ -44,7 +44,7 @@
                             <div class="col-auto">
                                 <select name="status" onchange="this.form.submit()" class="form-select">
                                     <option value="">Semua Status</option>
-                                    @foreach (['pending', 'selesai', 'confirmed'] as $statusOption)
+                                    @foreach (['pending', 'waiting', 'paid'] as $statusOption)
                                         <option value="{{ $statusOption }}" {{ request('status') == $statusOption ? 'selected' : '' }}>
                                             {{ ucfirst($statusOption) }}
                                         </option>
