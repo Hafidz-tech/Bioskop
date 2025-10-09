@@ -29,7 +29,7 @@ class PemesananController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', fn($q2) => 
                         $q2->where('name', 'like', "%{$search}%"))
-                  ->orWhereHas('jadwal.film', fn($q2) => 
+                    ->orWhereHas('jadwal.film', fn($q2) => 
                         $q2->where('judul', 'like', "%{$search}%"));
             });
         }
@@ -49,7 +49,7 @@ class PemesananController extends Controller
     /**
      * Konfirmasi pembayaran: ubah status di tabel pembayaran menjadi 'paid'
      */
-   public function updateStatus($id, $status)
+    public function updateStatus($id, $status)
 {
     $pembayaran = Pembayaran::where('pemesanan_id', $id)->firstOrFail();
 
@@ -61,6 +61,5 @@ class PemesananController extends Controller
 
     return redirect()->back()->with('success', 'Status pemesanan berhasil diperbarui menjadi ' . ucfirst($status));
 }
-
 
 }

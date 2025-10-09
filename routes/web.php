@@ -39,15 +39,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->as('admin.')->group(funct
     Route::resource('studio', StudioController::class);
     Route::resource('kursi', KursiController::class)->names('kursi');
     Route::resource('genre', GenreController::class);
-
     Route::get('/pemesanan', [AdminPemesananController::class, 'index'])->name('pemesanan.index');
-
     // Update status dengan 2 parameter: pemesanan dan status
     Route::put('/pemesanan/{pemesanan}/{status}/update-status', [AdminPemesananController::class, 'updateStatus'])->name('pemesanan.updateStatus');
 
     Route::post('studio/{studio}/bookSeats', [StudioController::class, 'bookSeats'])->name('studio.bookSeats');
 });
-
 
 // ==================== USER ROUTES ====================
 Route::middleware(['auth'])->prefix('user')->group(function () {
@@ -69,4 +66,5 @@ Route::middleware(['auth'])->prefix('user')->group(function () {
     Route::get('film/{id}', [UserFilmController::class, 'show'])->name('user.film.show');
 
     Route::post('/pemesanan/{pemesanan}/payment', [UserPemesananController::class, 'storePayment'])->name('user.pemesanan.payment');
+    
 });

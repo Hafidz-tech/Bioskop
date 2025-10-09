@@ -27,12 +27,7 @@ class PemesananController extends Controller
         $search = $request->get('search');
         $status = $request->get('status');
 
-        $query = Pemesanan::with([
-                'jadwal.film',
-                'jadwal.studio',
-                'kursi',
-                'pembayaran'
-            ])
+        $query = Pemesanan::with(['jadwal.film', 'jadwal.studio', 'kursi', 'pembayaran'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc');
 
@@ -70,13 +65,7 @@ class PemesananController extends Controller
         $kursis = Kursi::where('studio_id', $jadwal->studio_id)->get();
 
         // Ambil kursi yang sudah dibayar (terpakai)
-        $kursiTerpakai = DB::table('kursi_pemesanan')
-            ->join('pemesanans', 'kursi_pemesanan.pemesanan_id', '=', 'pemesanans.id')
-            ->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')
-            ->where('pemesanans.jadwal_id', $jadwal_id)
-            ->where('pembayarans.status', 'paid')
-            ->pluck('kursi_pemesanan.kursi_id')
-            ->toArray();
+        $kursiTerpakai = DB::table('kursi_pemesanan')->join('pemesanans', 'kursi_pemesanan.pemesanan_id', '=', 'pemesanans.id')->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')->where('pemesanans.jadwal_id', $jadwal_id)->where('pembayarans.status', 'paid')->pluck('kursi_pemesanan.kursi_id')->toArray();
 
         // Tandai kursi yang sudah dipesan
         foreach ($kursis as $kursi) {
@@ -95,11 +84,11 @@ class PemesananController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'jadwal_id'         => 'required|exists:jadwals,id',
-            'kursi_ids'         => 'required|array|min:1',
-            'kursi_ids.*'       => 'exists:kursis,id',
-            'total_harga'       => 'required|numeric|min:0',
-            'bukti_pembayaran'  => 'required|image|max:2048',
+            'jadwal_id' => 'required|exists:jadwals,id',
+            'kursi_ids' => 'required|array|min:1',
+            'kursi_ids.*' => 'exists:kursis,id',
+            'total_harga' => 'required|numeric|min:0',
+            'bukti_pembayaran' => 'required|image|max:2048',
         ]);
 
         $userId = Auth::id();
@@ -109,11 +98,7 @@ class PemesananController extends Controller
         $kursiSudahDipesan = DB::table('kursi_pemesanan')
             ->whereIn('kursi_id', $kursiTerpilih)
             ->whereIn('pemesanan_id', function ($q) use ($request) {
-                $q->select('pemesanans.id')
-                    ->from('pemesanans')
-                    ->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')
-                    ->where('pemesanans.jadwal_id', $request->jadwal_id)
-                    ->where('pembayarans.status', 'paid');
+                $q->select('pemesanans.id')->from('pemesanans')->join('pembayarans', 'pemesanans.id', '=', 'pembayarans.pemesanan_id')->where('pemesanans.jadwal_id', $request->jadwal_id)->where('pembayarans.status', 'paid');
             })
             ->exists();
 
@@ -128,28 +113,28 @@ class PemesananController extends Controller
             $total_harga = (int) round($request->total_harga);
 
             $pemesanan = Pemesanan::create([
-                'jadwal_id'     => $request->jadwal_id,
-                'user_id'       => $userId,
-                'jumlah_tiket'  => $jumlah_tiket,
-                'total_harga'   => $total_harga,
+                'jadwal_id' => $request->jadwal_id,
+                'user_id' => $userId,
+                'jumlah_tiket' => $jumlah_tiket,
+                'total_harga' => $total_harga,
             ]);
 
             $pemesanan->kursi()->attach($kursiTerpilih);
 
             // Upload bukti pembayaran
-            $path = Storage::disk('public')->putFile('bukti', $request->file('bukti_pembayaran'));
+            $file = $request->file('bukti_pembayaran');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('bukti', $filename, 'public');
 
             Pembayaran::create([
-                'pemesanan_id'     => $pemesanan->id,
+                'pemesanan_id' => $pemesanan->id,
                 'bukti_pembayaran' => $path,
-                'status'           => 'waiting',
+                'status' => 'waiting',
             ]);
 
             DB::commit();
 
-            return redirect()
-                ->route('user.pemesanan.index')
-                ->with('success', 'Pemesanan dan bukti pembayaran berhasil disimpan. Menunggu konfirmasi.');
+            return redirect()->route('user.pemesanan.index')->with('success', 'Pemesanan dan bukti pembayaran berhasil disimpan. Menunggu konfirmasi.');
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Gagal menyimpan pemesanan', ['error' => $e->getMessage()]);

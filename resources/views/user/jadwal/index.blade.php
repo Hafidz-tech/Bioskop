@@ -10,7 +10,7 @@
             @foreach ($tanggalList as $tanggal)
                 <li class="nav-item">
                     <a class="nav-link {{ $tanggal == $tanggalTerpilih ? 'active' : '' }}"
-                       href="{{ route('user.jadwal.index', ['tanggal' => $tanggal]) }}">
+                        href="{{ route('user.jadwal.index', ['tanggal' => $tanggal]) }}">
                         {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('D, d M') }}
                     </a>
                 </li>
@@ -62,7 +62,7 @@
                                         <p class="mb-1"><strong>Sisa Kursi:</strong> {{ $sisaKursi }} / {{ $totalKursi }}</p>
                                     </div>
                                     <a href="{{ route('user.jadwal.show', $jadwal->id) }}"
-                                       class="btn btn-primary mt-3 w-100">
+                                        class="btn btn-primary mt-3 w-100">
                                         Pesan Tiket
                                     </a>
                                 </div>
@@ -78,4 +78,5 @@
         @endforelse
     </div>
 </div>
+
 @endsection

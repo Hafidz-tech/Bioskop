@@ -23,8 +23,8 @@ class FilmController extends Controller
 
         // Pagination
         $perPage = $request->get('per_page', 5);
-        $films   = $query->paginate($perPage)->withQueryString();
-        $genres  = Genre::all();
+        $films = $query->paginate($perPage)->withQueryString();
+        $genres = Genre::all();
 
         return view('admin.film.index', compact('films', 'genres'));
     }
@@ -40,28 +40,26 @@ class FilmController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'judul'     => 'required|string|max:255',
-            'sinopsis'  => 'required|string',
-            'durasi'    => 'required|integer|min:1',
-            'genre_id'  => 'required|exists:genres,id',
-            'poster'    => 'nullable|image|max:2048',
+            'judul' => 'required|string|max:255',
+            'sinopsis' => 'required|string',
+            'durasi' => 'required|integer|min:1',
+            'genre_id' => 'required|exists:genres,id',
+            'poster' => 'nullable|image|max:2048',
             // ganti rule numeric jadi integer
-            'harga'     => 'required|integer|min:0',
+            'harga' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('admin.film.create')
-                             ->withErrors($validator)
-                             ->withInput();
+            return redirect()->route('admin.film.create')->withErrors($validator)->withInput();
         }
 
         $film = new Film();
-        $film->judul     = $request->judul;
-        $film->sinopsis  = $request->sinopsis;
-        $film->durasi    = $request->durasi;
-        $film->genre_id  = $request->genre_id;
+        $film->judul = $request->judul;
+        $film->sinopsis = $request->sinopsis;
+        $film->durasi = $request->durasi;
+        $film->genre_id = $request->genre_id;
         // cast ke integer kalau perlu
-        $film->harga     = (int) $request->harga;
+        $film->harga = (int) $request->harga;
 
         if ($request->hasFile('poster')) {
             $film->poster = $request->file('poster')->store('posters', 'public');
@@ -69,41 +67,38 @@ class FilmController extends Controller
 
         $film->save();
 
-        return redirect()->route('admin.film.index')
-                         ->with('success', 'Film berhasil ditambahkan');
+        return redirect()->route('admin.film.index')->with('success', 'Film berhasil ditambahkan');
     }
 
     // Menampilkan form edit
-   public function edit(Film $film)
-{
-    return redirect()->route('admin.film.index');
-}
+    public function edit(Film $film)
+    {
+        return redirect()->route('admin.film.index');
+    }
 
     // Proses update
     public function update(Request $request, Film $film)
     {
         $validator = Validator::make($request->all(), [
-            'judul'     => 'required|string|max:255',
-            'sinopsis'  => 'required|string',
-            'durasi'    => 'required|integer|min:1',
-            'genre_id'  => 'required|exists:genres,id',
-            'poster'    => 'nullable|image|max:2048',
+            'judul' => 'required|string|max:255',
+            'sinopsis' => 'required|string',
+            'durasi' => 'required|integer|min:1',
+            'genre_id' => 'required|exists:genres,id',
+            'poster' => 'nullable|image|max:2048',
             // ganti rule numeric jadi integer
-            'harga'     => 'required|integer|min:0',
+            'harga' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('admin.film.edit', $film->id)
-                             ->withErrors($validator)
-                             ->withInput();
+            return redirect()->route('admin.film.edit', $film->id)->withErrors($validator)->withInput();
         }
 
-        $film->judul     = $request->judul;
-        $film->sinopsis  = $request->sinopsis;
-        $film->durasi    = $request->durasi;
-        $film->genre_id  = $request->genre_id;
+        $film->judul = $request->judul;
+        $film->sinopsis = $request->sinopsis;
+        $film->durasi = $request->durasi;
+        $film->genre_id = $request->genre_id;
         // cast ke integer
-        $film->harga     = (int) $request->harga;
+        $film->harga = (int) $request->harga;
 
         if ($request->hasFile('poster')) {
             if ($film->poster && Storage::disk('public')->exists($film->poster)) {
@@ -114,8 +109,7 @@ class FilmController extends Controller
 
         $film->save();
 
-        return redirect()->route('admin.film.index')
-                         ->with('success', 'Film berhasil diperbarui');
+        return redirect()->route('admin.film.index')->with('success', 'Film berhasil diperbarui');
     }
 
     // Hapus film
@@ -127,7 +121,6 @@ class FilmController extends Controller
 
         $film->delete();
 
-        return redirect()->route('admin.film.index')
-                         ->with('success', 'Film berhasil dihapus');
+        return redirect()->route('admin.film.index')->with('success', 'Film berhasil dihapus');
     }
 }

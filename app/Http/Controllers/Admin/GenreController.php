@@ -76,7 +76,7 @@ class GenreController extends Controller
 
         // Cek apakah genre ini memiliki film yang tertaut
         if ($genre->films()->count() > 0) {
-            return redirect()->route('admin.genre.index')
+            return redirect()->route('admin.genre.index')   
                 ->with('error', 'Genre tidak dapat dihapus karena masih tertaut oleh film.');
         }
 
