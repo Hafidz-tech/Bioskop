@@ -21,7 +21,7 @@ class StudioController extends Controller
             $query->where('nama', 'like', "%{$search}%");
         }
 
-        $studios = $query->paginate($perPage)->withQueryString(); // ← Tambahan aman
+        $studios = $query->paginate($perPage)->appends(request()->query());
 
         return view('admin.studio.index', compact('studios'));
     }
